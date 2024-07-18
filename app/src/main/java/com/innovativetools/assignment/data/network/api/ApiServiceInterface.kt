@@ -5,10 +5,6 @@ import com.innovativetools.assignment.data.model.RequestBody
 import com.innovativetools.assignment.data.network.api.ApiEndpoints
 import retrofit2.http.*
 
-
-
-import retrofit2.http.*
-
 interface ApiServiceInterface {
     @GET(ApiEndpoints.DASHBOARD)
     suspend fun getDashboardData(): ApiResponse

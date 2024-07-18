@@ -30,7 +30,6 @@ import com.innovativetools.assignment.databinding.FragmentDahsboardBinding
 import com.innovativetools.assignment.data.model.Link
 import com.innovativetools.assignment.data.model.RequestBody
 import com.innovativetools.assignment.data.network.api.ApiService
-import com.innovativetools.assignment.data.network.api.ApiServiceInterface
 import com.innovativetools.assignment.data.repository.DashboardRepository
 import com.innovativetools.assignment.viewmodel.DashboardViewModel
 import com.innovativetools.assignment.viewmodel.DashboardViewModelFactory
@@ -114,27 +113,25 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setUpTabs() {
+        // Adding tabs with custom view
         tabLayout.addTab(tabLayout.newTab().setCustomView(createTabView("Top Links", true)))
         tabLayout.addTab(tabLayout.newTab().setCustomView(createTabView("Recent Links", false)))
 
         val selectedTabDrawable = resources.getDrawable(R.drawable.fill_btn_round_30, null)
         tabLayout.setSelectedTabIndicator(null)
 
+        // Set default tab background and text color
         val defaultTab = tabLayout.getTabAt(0)
         defaultTab?.select()
         defaultTab?.view?.background = selectedTabDrawable
-        displayTopLinks()
+        displayRecentLinks()
+
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
 
             override fun onTabSelected(tab: TabLayout.Tab) {
                 tab.view.background = selectedTabDrawable
                 val textView = tab.customView?.findViewById<TextView>(R.id.tab_text)
-                textView?.setTextColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        android.R.color.white
-                    )
-                )
+                textView?.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
                 when (tab.position) {
                     0 -> displayTopLinks()
                     1 -> displayRecentLinks()
@@ -144,16 +141,10 @@ class DashboardFragment : Fragment() {
             override fun onTabUnselected(tab: TabLayout.Tab) {
                 tab.view.background = null
                 val textView = tab.customView?.findViewById<TextView>(R.id.tab_text)
-                textView?.setTextColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        android.R.color.black
-                    )
-                )
+                textView?.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
             }
 
             override fun onTabReselected(tab: TabLayout.Tab) {
-
             }
         })
     }

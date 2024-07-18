@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.github.mikephil.charting.data.Entry
 import com.innovativetools.assignment.data.model.ApiResponse
-import com.innovativetools.assignment.data.model.ClickInfo
 import com.innovativetools.assignment.data.model.Link
 import com.innovativetools.assignment.data.model.RequestBody
 import com.innovativetools.assignment.data.repository.DashboardRepository
@@ -54,6 +53,7 @@ class DashboardViewModel(private val repository: DashboardRepository) : ViewMode
 
     private val _chartLabels = MutableLiveData<List<String>>()
     val chartLabels: LiveData<List<String>> = _chartLabels
+
 
     //GET Request
     fun initialize() {
@@ -116,12 +116,15 @@ class DashboardViewModel(private val repository: DashboardRepository) : ViewMode
 
             withContext(Dispatchers.Main) {
                 if (response != null) {
+                    //if response is successfull we can update live data properties
                     _isLoading.value = false
                 } else {
                     _isLoading.value = false
                     _errorMessage.value = "Failed to fetch data"
                 }
             }
+
+            // Return the ApiResponse object
             response
         } catch (e: Exception) {
             _isLoading.value = false
