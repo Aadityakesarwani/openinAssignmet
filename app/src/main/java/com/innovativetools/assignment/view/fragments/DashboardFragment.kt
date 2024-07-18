@@ -16,9 +16,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
@@ -29,16 +27,15 @@ import com.innovativetools.assignment.view.adapter.LinksAdapter
 import com.innovativetools.assignment.databinding.FragmentDahsboardBinding
 import com.innovativetools.assignment.data.model.Link
 import com.innovativetools.assignment.data.model.RequestBody
-import com.innovativetools.assignment.data.network.api.ApiService
-import com.innovativetools.assignment.data.repository.DashboardRepository
 import com.innovativetools.assignment.viewmodel.DashboardViewModel
-import com.innovativetools.assignment.viewmodel.DashboardViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
 
+@AndroidEntryPoint
 class DashboardFragment : Fragment() {
 
     private lateinit var chart: LineChart
@@ -46,9 +43,11 @@ class DashboardFragment : Fragment() {
     private lateinit var selectedEndDate: Calendar
     private lateinit var tabLayout: TabLayout
     private lateinit var binding: FragmentDahsboardBinding
-    private val viewModel: DashboardViewModel by viewModels {
-        DashboardViewModelFactory(DashboardRepository(ApiService.apiService))
-    }
+//    private val viewModel: DashboardViewModel by viewModels {
+//        DashboardViewModelFactory(DashboardRepository(ApiService.apiService))
+//    }
+    private val viewModel: DashboardViewModel by viewModels()
+
     private var recentLinksData: List<Link>? = null
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -182,7 +181,6 @@ class DashboardFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun setUpDate() {
-
         binding.dateTextView.setOnClickListener {
             showDatePickerDialog()
         }
@@ -200,6 +198,7 @@ class DashboardFragment : Fragment() {
         updateDateRangeText()
         updateChart(selectedStartDate, selectedEndDate)
     }
+
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun showDatePickerDialog() {
@@ -312,6 +311,7 @@ class DashboardFragment : Fragment() {
         }
     }
 
+
     private fun parseChartLabelToDate(chartLabel: String): Calendar? {
         return try {
             val sdf = SimpleDateFormat("dd MMM", Locale.getDefault())
@@ -324,10 +324,9 @@ class DashboardFragment : Fragment() {
         }
     }
 
+
     private fun setUpRecentLinkChart() {
-
         var numDataPoints: Long = 0
-
         viewModel.chartDataEntries.observe(viewLifecycleOwner) { chartdataentries ->
             val dataSet = LineDataSet(chartdataentries, " ")
             dataSet.setDrawFilled(true)

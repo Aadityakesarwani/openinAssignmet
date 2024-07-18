@@ -8,13 +8,19 @@ import com.innovativetools.assignment.data.model.ApiResponse
 import com.innovativetools.assignment.data.model.Link
 import com.innovativetools.assignment.data.model.RequestBody
 import com.innovativetools.assignment.data.repository.DashboardRepository
+import com.innovativetools.assignment.utils.DateUtils
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
+import javax.inject.Inject
 
-class DashboardViewModel(private val repository: DashboardRepository) : ViewModel() {
+@HiltViewModel
+class DashboardViewModel @Inject constructor(
+
+    private val repository: DashboardRepository) : ViewModel() {
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
@@ -64,7 +70,7 @@ class DashboardViewModel(private val repository: DashboardRepository) : ViewMode
                 val response = repository.getDashboardData()
                 withContext(Dispatchers.Main) {
                     if (response != null) {
-                        _greeting.value = getGreeting()
+                        _greeting.value = DateUtils.getGreeting()
                         _totalClicks.value = response.totalClicks.toString()
                         _todayClicks.value = response.todayClicks.toString()
                         _totalLinks.value = response.totalLinks.toString()
@@ -103,7 +109,6 @@ class DashboardViewModel(private val repository: DashboardRepository) : ViewMode
         }
     }
 
-
     //POST request
     suspend fun postData(
         apiEndpoint: String,
@@ -123,24 +128,11 @@ class DashboardViewModel(private val repository: DashboardRepository) : ViewMode
                     _errorMessage.value = "Failed to fetch data"
                 }
             }
-
-            // Return the ApiResponse object
             response
         } catch (e: Exception) {
             _isLoading.value = false
             _errorMessage.value = "Error: ${e.message}"
             null
-        }
-    }
-
-
-    private fun getGreeting(): String {
-        val calendar = Calendar.getInstance()
-        val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
-        return when (currentHour) {
-            in 0..11 -> "Good morning"
-            in 12..16 -> "Good afternoon"
-            else -> "Good evening"
         }
     }
 

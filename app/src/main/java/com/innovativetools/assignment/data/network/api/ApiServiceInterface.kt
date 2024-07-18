@@ -2,7 +2,6 @@ package com.innovativetools.assignment.data.network.api
 
 import com.innovativetools.assignment.data.model.ApiResponse
 import com.innovativetools.assignment.data.model.RequestBody
-import com.innovativetools.assignment.data.network.api.ApiEndpoints
 import retrofit2.http.*
 
 interface ApiServiceInterface {

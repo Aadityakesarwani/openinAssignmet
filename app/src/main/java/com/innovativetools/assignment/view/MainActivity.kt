@@ -1,6 +1,5 @@
 package com.innovativetools.assignment.view
 
-import android.content.Context
 import android.content.res.ColorStateList
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -14,7 +13,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.innovativetools.assignment.R
 import com.innovativetools.assignment.databinding.ActivityMainBinding
 import androidx.navigation.navOptions
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
