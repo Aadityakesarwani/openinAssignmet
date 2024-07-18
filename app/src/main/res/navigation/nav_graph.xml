@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:label="Dashboard"
+        android:name="com.innovativetools.assignment.view.fragments.DashboardFragment"
+        tools:layout="@layout/fragment_dahsboard" >
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_courses"
+        android:label="Courses"
+        android:name="com.innovativetools.assignment.view.fragments.CourseFragment"
+        tools:layout="@layout/fragment_course" />
+
+    <fragment
+        android:id="@+id/navigation_campaign"
+        android:label="Campaign"
+        android:name="com.innovativetools.assignment.view.fragments.CampaignFragment"
+        tools:layout="@layout/fragment_campaign" />
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:label="Profile"
+        android:name="com.innovativetools.assignment.view.fragments.ProfileFragment"
+        tools:layout="@layout/fragment_profile" />
+
+
+
+
+</navigation>
