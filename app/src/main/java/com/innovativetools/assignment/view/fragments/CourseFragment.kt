@@ -23,5 +23,5 @@ class CourseFragment : Fragment() {
 
     companion object {
 
-            }
+    }
 }

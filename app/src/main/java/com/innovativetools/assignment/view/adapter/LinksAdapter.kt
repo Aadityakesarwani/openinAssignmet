@@ -13,7 +13,7 @@ import com.bumptech.glide.Glide
 import com.innovativetools.assignment.data.model.Link
 import com.innovativetools.assignment.R
 
-class LinksAdapter(private val links: List<Link>) : BaseAdapter(){
+class LinksAdapter(private val links: List<Link>) : BaseAdapter() {
     override fun getCount(): Int {
         return links.size
     }
@@ -23,16 +23,17 @@ class LinksAdapter(private val links: List<Link>) : BaseAdapter(){
     }
 
     override fun getItemId(position: Int): Long {
-         return position.toLong()
-        }
+        return position.toLong()
+    }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view : View
+        val view: View
         val viewHolder: ViewHolder
 
 
         if (convertView == null) {
-            view = LayoutInflater.from(parent?.context).inflate(R.layout.item_link_view, parent, false)
+            view =
+                LayoutInflater.from(parent?.context).inflate(R.layout.item_link_view, parent, false)
             viewHolder = ViewHolder(view)
             view.tag = viewHolder
         } else {
@@ -50,8 +51,9 @@ class LinksAdapter(private val links: List<Link>) : BaseAdapter(){
         viewHolder.link_url.text = link.smartLink
         viewHolder.link_Click_Count.text = link.totalClicks.toString()
 
-        viewHolder.link_copy.setOnClickListener{
-            val clipboardManager = view.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        viewHolder.link_copy.setOnClickListener {
+            val clipboardManager =
+                view.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clipData = ClipData.newPlainText("Label", viewHolder.link_url.text.toString())
             clipboardManager.setPrimaryClip(clipData)
         }
@@ -59,13 +61,13 @@ class LinksAdapter(private val links: List<Link>) : BaseAdapter(){
         return view
     }
 
-    private class ViewHolder(view: View){
+    private class ViewHolder(view: View) {
         val iv_link = view.findViewById<ImageView>(R.id.iv_link)
         val link_copy = view.findViewById<ImageView>(R.id.iv_link_copy)
         val link_title = view.findViewById<TextView>(R.id.tv_link_title)
         val click_time = view.findViewById<TextView>(R.id.tv_clicks_ago)
         val link_Click_Count = view.findViewById<TextView>(R.id.tv_clicks_count)
-        val  link_url = view.findViewById<TextView>(R.id.tv_link_url)
+        val link_url = view.findViewById<TextView>(R.id.tv_link_url)
 
     }
 

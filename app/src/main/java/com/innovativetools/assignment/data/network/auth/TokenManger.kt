@@ -16,11 +16,9 @@ class TokenManager @Inject constructor(@ApplicationContext context: Context) {
         editor.putString(TOKEN_KEY, token)
         editor.apply()
     }
-
     fun getToken(): String? {
         return prefs.getString(TOKEN_KEY, null)
     }
-
     companion object {
         private const val PREFS_NAME = "app_prefs"
         private const val TOKEN_KEY = "access_token"

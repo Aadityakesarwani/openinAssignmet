@@ -11,7 +11,6 @@ class AuthInterceptor @Inject constructor(private val tokenManager: TokenManager
         token?.let {
             requestBuilder.addHeader("Authorization", "Bearer $it")
         }
-
         return chain.proceed(requestBuilder.build())
     }
 }

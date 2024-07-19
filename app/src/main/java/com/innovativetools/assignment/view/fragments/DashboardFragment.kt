@@ -1,19 +1,24 @@
 package com.innovativetools.assignment.view.fragments
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -23,15 +28,16 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.tabs.TabLayout
 import com.innovativetools.assignment.R
+import com.innovativetools.assignment.data.model.ClickInfoItem
 import com.innovativetools.assignment.view.adapter.LinksAdapter
 import com.innovativetools.assignment.databinding.FragmentDahsboardBinding
 import com.innovativetools.assignment.data.model.Link
 import com.innovativetools.assignment.data.model.RequestBody
+import com.innovativetools.assignment.utils.DateUtils
+import com.innovativetools.assignment.view.adapter.ClicksInfoAdapter
 import com.innovativetools.assignment.viewmodel.DashboardViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -43,72 +49,87 @@ class DashboardFragment : Fragment() {
     private lateinit var selectedEndDate: Calendar
     private lateinit var tabLayout: TabLayout
     private lateinit var binding: FragmentDahsboardBinding
-//    private val viewModel: DashboardViewModel by viewModels {
-//        DashboardViewModelFactory(DashboardRepository(ApiService.apiService))
-//    }
     private val viewModel: DashboardViewModel by viewModels()
-
     private var recentLinksData: List<Link>? = null
+    private lateinit var clickinfoAdapter: ClicksInfoAdapter
 
+    @SuppressLint("NewApi")
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        binding =
-            DataBindingUtil.inflate(layoutInflater, R.layout.fragment_dahsboard, container, false)
+    ): View {
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_dahsboard, container, false)
+        viewModel.initialize()
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
 
         chart = binding.chart
         tabLayout = binding.tabLayout
 
-        viewModel.initialize()
-
-        val requestBody = RequestBody("NewEndPointAdded")
-        lifecycleScope.launch {
-            viewModel.postData("newEndpoint", requestBody)
-        }
-
         observeViewModel()
         setUpTabs()
+        setUpRecyclerView()
         setUpRecentLinkChart()
         setUpDate()
-
         return binding.root
     }
 
+    private fun setUpRecyclerView() {
+        clickinfoAdapter = ClicksInfoAdapter(emptyList())
+        binding.rvClicksInfo.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        binding.rvClicksInfo.adapter = clickinfoAdapter
+    }
+
     private fun observeViewModel() {
+
+        viewModel.totalClicks.observe(viewLifecycleOwner) { updateClickInfo() }
+        viewModel.todayClicks.observe(viewLifecycleOwner) { updateClickInfo() }
+        viewModel.totalLinks.observe(viewLifecycleOwner) { updateClickInfo() }
+        viewModel.topLocation.observe(viewLifecycleOwner) { updateClickInfo() }
+        viewModel.topSource.observe(viewLifecycleOwner) { updateClickInfo() }
+
+        viewModel.clickInfoItem.observe(viewLifecycleOwner) { items ->
+            clickinfoAdapter.updateItems(items)
+        }
+
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.INVISIBLE
         }
 
-        viewModel.userName.observe(viewLifecycleOwner) { userName ->
-            binding.tvUserName.text = userName
-        }
+    }
 
-        viewModel.greeting.observe(viewLifecycleOwner) { greeting ->
-            binding.tvGreeting.text = greeting
-        }
-
-        viewModel.totalClicks.observe(viewLifecycleOwner) { totalClicks ->
-            binding.tvTotalClicksCount.text = totalClicks
-        }
-
-        viewModel.todayClicks.observe(viewLifecycleOwner) { todayClicks ->
-            binding.tvTodayClicksCount.text = todayClicks
-        }
-
-        viewModel.totalLinks.observe(viewLifecycleOwner) { totalLinks ->
-            binding.tvTotalLinksCount.text = totalLinks
-        }
-
-        viewModel.topLocation.observe(viewLifecycleOwner) { topLocation ->
-            binding.tvTopLocName.text = topLocation
-        }
-
-        viewModel.topSource.observe(viewLifecycleOwner) { topSource ->
-            binding.tvTopSourceName.text = topSource
-        }
+    private fun updateClickInfo() {
+        val items = listOf(
+            ClickInfoItem(
+                R.drawable.ic_clicks_today,
+                viewModel.todayClicks.value ?: "0",
+                "Today's Clicks"
+            ),
+            ClickInfoItem(
+                R.drawable.ic_top_loc,
+                viewModel.topLocation.value ?: "Location",
+                "Top Location"
+            ),
+            ClickInfoItem(
+                R.drawable.ic_source,
+                viewModel.topSource.value ?: "Source",
+                "Top Source"
+            ),
+            ClickInfoItem(
+                R.drawable.ic_total_clicks,
+                viewModel.totalClicks.value ?: "0",
+                "Total Clicks"
+            ),
+            ClickInfoItem(
+                R.drawable.ic_total_links,
+                viewModel.totalLinks.value ?: "0",
+                "Total Links"
+            )
+        )
+        clickinfoAdapter.updateItems(items)
     }
 
     private fun setUpTabs() {
@@ -116,7 +137,8 @@ class DashboardFragment : Fragment() {
         tabLayout.addTab(tabLayout.newTab().setCustomView(createTabView("Top Links", true)))
         tabLayout.addTab(tabLayout.newTab().setCustomView(createTabView("Recent Links", false)))
 
-        val selectedTabDrawable = resources.getDrawable(R.drawable.fill_btn_round_30, null)
+        val selectedTabDrawable =
+            ResourcesCompat.getDrawable(resources, R.drawable.fill_btn_round_30, null)
         tabLayout.setSelectedTabIndicator(null)
 
         // Set default tab background and text color
@@ -130,7 +152,12 @@ class DashboardFragment : Fragment() {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 tab.view.background = selectedTabDrawable
                 val textView = tab.customView?.findViewById<TextView>(R.id.tab_text)
-                textView?.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+                textView?.setTextColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        android.R.color.white
+                    )
+                )
                 when (tab.position) {
                     0 -> displayTopLinks()
                     1 -> displayRecentLinks()
@@ -140,7 +167,12 @@ class DashboardFragment : Fragment() {
             override fun onTabUnselected(tab: TabLayout.Tab) {
                 tab.view.background = null
                 val textView = tab.customView?.findViewById<TextView>(R.id.tab_text)
-                textView?.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
+                textView?.setTextColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        android.R.color.black
+                    )
+                )
             }
 
             override fun onTabReselected(tab: TabLayout.Tab) {
@@ -166,7 +198,6 @@ class DashboardFragment : Fragment() {
         viewModel.topLinks.observe(viewLifecycleOwner) { toplinks ->
             val linksAdapter = LinksAdapter(toplinks)
             binding.listViewLinks.adapter = linksAdapter
-
         }
     }
 
@@ -195,7 +226,8 @@ class DashboardFragment : Fragment() {
                 calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
             )
         }
-        updateDateRangeText()
+        binding.dateTextView.text =
+            DateUtils.updateDateRangeText(selectedStartDate, selectedEndDate)
         updateChart(selectedStartDate, selectedEndDate)
     }
 
@@ -212,7 +244,8 @@ class DashboardFragment : Fragment() {
                     selectedEndDate.apply {
                         set(year, month, getActualMaximum(Calendar.DAY_OF_MONTH))
                     }
-                    updateDateRangeText()
+                    binding.dateTextView.text =
+                        DateUtils.updateDateRangeText(selectedStartDate, selectedEndDate)
                     updateChart(selectedStartDate, selectedEndDate)
                 },
                 selectedStartDate.get(Calendar.YEAR),
@@ -222,16 +255,6 @@ class DashboardFragment : Fragment() {
         }
         datePickerDialog?.show()
 
-    }
-
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun updateDateRangeText() {
-        val startDateString =
-            SimpleDateFormat("dd MMM ", Locale.getDefault()).format(selectedStartDate.time)
-        val endDateString =
-            SimpleDateFormat("dd MMM ", Locale.getDefault()).format(selectedEndDate.time)
-        val selectedRange = "$startDateString - $endDateString"
-        binding.dateTextView.text = selectedRange
     }
 
 
@@ -266,7 +289,8 @@ class DashboardFragment : Fragment() {
 
                 //filter dates
                 val filteredDataEntries = chartdataentries.filterIndexed { index, _ ->
-                    val date = chartlabels.getOrNull(index)?.let { parseChartLabelToDate(it) }
+                    val date =
+                        chartlabels.getOrNull(index)?.let { DateUtils.parseChartLabelToDate(it) }
                     date?.let { it.after(startDate) && it.before(endDate) } ?: false
                 }
 
@@ -308,19 +332,6 @@ class DashboardFragment : Fragment() {
 
                 chart.animateY(1000, Easing.EaseInOutCubic)
             }
-        }
-    }
-
-
-    private fun parseChartLabelToDate(chartLabel: String): Calendar? {
-        return try {
-            val sdf = SimpleDateFormat("dd MMM", Locale.getDefault())
-            val date = sdf.parse(chartLabel)
-            Calendar.getInstance().apply {
-                time = date
-            }
-        } catch (e: ParseException) {
-            null
         }
     }
 
@@ -374,7 +385,6 @@ class DashboardFragment : Fragment() {
             yAxis.axisMaximum = yAxisMaxValue
             val visibleRange = chartWidth / numDataPoints
             xAxis.setLabelCount((chartWidth / visibleRange).toInt(), true)
-
 
             yAxis.setDrawGridLines(false)
 

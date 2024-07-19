@@ -1,10 +1,14 @@
 package com.innovativetools.assignment.viewmodel
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.github.mikephil.charting.data.Entry
+import com.innovativetools.assignment.R
 import com.innovativetools.assignment.data.model.ApiResponse
+import com.innovativetools.assignment.data.model.ClickInfoItem
 import com.innovativetools.assignment.data.model.Link
 import com.innovativetools.assignment.data.model.RequestBody
 import com.innovativetools.assignment.data.repository.DashboardRepository
@@ -14,13 +18,19 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
+    private val repository: DashboardRepository
+) : ViewModel() {
 
-    private val repository: DashboardRepository) : ViewModel() {
+    private val _clickInfoItems = MutableLiveData<List<ClickInfoItem>>()
+    val clickInfoItem: LiveData<List<ClickInfoItem>> get() = _clickInfoItems
+
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
@@ -80,8 +90,10 @@ class DashboardViewModel @Inject constructor(
                         _topLinks.value = response.data.topLinks
                         _userName.value = "User Name"
 
+
                         val entries = mutableListOf<Entry>()
                         val labels = mutableListOf<String>()
+
                         val recentLink = response.data.recentLinks
 
                         for (i in recentLink.indices) {
@@ -109,6 +121,7 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+
     //POST request
     suspend fun postData(
         apiEndpoint: String,
@@ -121,7 +134,7 @@ class DashboardViewModel @Inject constructor(
 
             withContext(Dispatchers.Main) {
                 if (response != null) {
-                    //if response is successfull we can update live data properties
+                    //if response is successful we can update live data properties
                     _isLoading.value = false
                 } else {
                     _isLoading.value = false
@@ -135,7 +148,6 @@ class DashboardViewModel @Inject constructor(
             null
         }
     }
-
 
 }
 

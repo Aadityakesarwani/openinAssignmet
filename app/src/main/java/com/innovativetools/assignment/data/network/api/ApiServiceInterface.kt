@@ -7,7 +7,6 @@ import retrofit2.http.*
 interface ApiServiceInterface {
     @GET(ApiEndpoints.DASHBOARD)
     suspend fun getDashboardData(): ApiResponse
-
     @POST
     suspend fun postData(@Url url: String, @Body requestBody: RequestBody): ApiResponse
 }

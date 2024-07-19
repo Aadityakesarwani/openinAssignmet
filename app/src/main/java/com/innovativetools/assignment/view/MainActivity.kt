@@ -44,12 +44,10 @@ class MainActivity : AppCompatActivity() {
 
         bottom_nav.setupWithNavController(navController)
 
-        // Set up the listener for fragment changes
         navController.addOnDestinationChangedListener { _, destination, _ ->
             frag_title.text = destination.label
         }
 
-        // Custom NavOptions with no animations
         val noAnimNavOptions = navOptions {
             anim {
                 enter = 0
@@ -59,25 +57,28 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Use the custom NavOptions when navigating
         bottom_nav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_home -> {
                     navController.navigate(R.id.navigation_home, null, noAnimNavOptions)
                     true
                 }
+
                 R.id.navigation_courses -> {
                     navController.navigate(R.id.navigation_courses, null, noAnimNavOptions)
                     true
                 }
+
                 R.id.navigation_campaign -> {
                     navController.navigate(R.id.navigation_campaign, null, noAnimNavOptions)
                     true
                 }
+
                 R.id.navigation_profile -> {
                     navController.navigate(R.id.navigation_profile, null, noAnimNavOptions)
                     true
                 }
+
                 else -> false
             }
         }

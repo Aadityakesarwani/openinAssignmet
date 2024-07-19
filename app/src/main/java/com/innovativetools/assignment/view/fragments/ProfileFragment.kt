@@ -12,7 +12,6 @@ class ProfileFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
     }
 
     override fun onCreateView(
@@ -21,7 +20,6 @@ class ProfileFragment : Fragment() {
     ): View? {
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
-
     companion object {
     }
 }
